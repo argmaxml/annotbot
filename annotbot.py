@@ -33,6 +33,7 @@ def on_chat_message(msg):
     content_type, chat_type, chat_id = telepot.glance(msg)
     print(content_type, chat_type, chat_id)
     if content_type == 'text':
+        bot.sendMessage(chat_id, "Hi from Annotation bot ( https://github.com/urigoren/annotbot )")
         send_annotation_request(chat_id)
 
 
