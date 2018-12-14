@@ -1,12 +1,9 @@
 {
-  "classes": {
-    "happy": "Happy",
-    "sad": "Sad"
-  },
-  "data": {
-    "image1": "https://cdn2.vectorstock.com/i/thumbs/17/86/sad-smiley-emoticon-vector-5061786.jpg",
-    "image2":"https://www.laughinglizards.com/wp-content/uploads/2005/06/product_l_l_ll-812l.jpg"
-  },
-  "token": "YOUR_TOKEN",
-  "bot_url": "telegram.me/YOUR_BOT"
+  "connection_string": "...",
+  "debug_connection_string": "...",
+  "done_message": "Thank you, we're all done",
+  "dataset_not_found_message": "Please state the name of the dataset, these are the available datasets: ",
+  "token": "...",
+  "token_debug": "...",
+  "bot_url": "https://t.me/Annotbot"
 }
