@@ -73,20 +73,6 @@ Base.metadata.create_all(db)
 
 app = Flask("annotbot")
 
-# res = db.execute("select * from annotations;")
-
-
-def test_data():
-    session = Session()
-    session.add(Dataset(name="test", description="testing"))
-    session.add(Class(dataset=1, name="positive"))
-    session.add(Class(dataset=1, name="neutral"))
-    session.add(Class(dataset=1, name="negative"))
-    session.add(Example(dataset=1, name="ex1", value="Pump P 17.1 is used to circulate the content of vessel B 17.1 and additionally feed the column K 21. "))
-    session.add(Example(dataset=1, name="ex2", value="(1) No Product flow (2) Coked pressure pipe Why (3) High temperature at the trace heating over a long time Why (4) To keep the product liquid Why (5) To keep it pumpable "))
-    session.add(Annotation(dataset=1, chat_id=666, example=2, class_id=3))
-    session.commit()
-
 
 # --------------- BOT ---------------------- #
 
