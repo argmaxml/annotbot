@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% block content %}
+    <div class="row">
+        <table  class="table table-striped">
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th>Description</th>
+                <th>Download</th>
+              </tr>
+            </thead>
+            <tbody>
+        {% for dataset in datasets%}
+            <tr>
+                <td>{{dataset.name}}</td>
+                <td>{{dataset.description}}</td>
+                <td><a href="/annotated/{{dataset.name}}">Annotated</a> |
+                    <a href="/data/{{dataset.name}}">Data</a> |
+                    <a href="/classes/{{dataset.name}}">Classes</a></td>
+            </tr>
+        {% endfor %}
+            </tbody>
+        </table>
+    </div>
+{% endblock %}
