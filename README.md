@@ -9,3 +9,9 @@ Available on annotbot.com
 1. Tell it yor dataset name, and start tagging
 1. Share it with as many people as possible
 1. When done, goto http://www.annotbot.com/view_annotations and download the annotations
+
+## Bot Screenshot
+![alt text](https://github.com/urigoren/annotbot/blob/master/static/screenshot.png "Screenshot")
+
+## Questions / Comments / Suggestions ?
+Contact me at [goren.ml](http://www.goren4u.com)
