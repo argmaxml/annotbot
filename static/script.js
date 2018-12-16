@@ -50,19 +50,19 @@ function validate() {
         alert("Not all Data lines contain a comma");
         return false;
     }
-    valid = document.getElementById("txt_desc").value.length>5;
+    valid = document.getElementById("txt_desc").value.length<5;
     if (!valid) {
         alert("Dataset description too short");
         return false;
     }
     valid = document.getElementById("txt_botname").value.length<2;
     if (!valid) {
-        alert("Bot name description too short");
+        alert("Bot name too short");
         return false;
     }
-    valid = document.getElementById("txt_botname").value.length>20;
+    valid = document.getElementById("txt_botname").value.length>50;
     if (!valid) {
-        alert("Bot name description too long");
+        alert("Bot name too long");
         return false;
     }
     valid = document.getElementById("txt_botname").value.replace(/^\w+$/, '').length==0;
