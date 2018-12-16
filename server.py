@@ -192,7 +192,7 @@ def annotated(dataset_name):
             GROUP BY 1,2
             """)
     csv = pd.DataFrame(list(data), columns=["example", "cls", "cnt"])\
-        .pivot_table(values="cnt", aggfunc=len, index="example", columns="cls")\
+        .pivot_table(values="cnt", aggfunc=sum, index="example", columns="cls")\
         .fillna(0)\
         .to_csv()
     return Response(
@@ -252,7 +252,7 @@ def submit_dataset():
     for datum in form.get("txt_data").split('\n'):
         if datum.find(',')>0:
             key,val = datum.strip().split(',', 1)
-            session.add(Example(dataset=1, name=key, value=val))
+            session.add(Example(dataset=dataset_id, name=key, value=val))
     session.commit()
     return render_template("view_annotations.html",
                            pages=["Home","New Bot","View Annotations"],
