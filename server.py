@@ -82,9 +82,12 @@ def send_annotation_request(chat_id):
         raise SystemError(f"No dataset for chat_id={chat_id}")
     data_point = db.execute(
         f"""
-        select E.id, E.value 
-        from examples E left join annotations A on E.dataset=A.dataset and A.example=E.id 
-        where A.class_id is NULL and E.dataset={dataset} 
+        select E.id, E.value from 
+        (select * from examples where dataset={dataset}) E 
+        left join 
+        (Select * from annotations where chat_id={chat_id} and dataset={dataset}) A
+         on A.example=E.id 
+        where A.class_id is NULL
         order by random()
         """).first()
     if data_point is None:
