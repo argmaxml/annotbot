@@ -30,10 +30,11 @@ Session = sessionmaker(bind=db)
 
 def notify_dev(text):
     """Send a telegram message"""
-    url = ("https://api.telegram.org/bot245760457:AAF-EUYBwxltszh0YLIZTZT1KA62ceyGjCk/sendMessage?" +
+    url = ("https://api.telegram.org/bot"+config["token_debug"]+"/sendMessage?" +
                      urlencode({"text": text, "chat_id": 234897317}))
     handler = urlopen(url)
     return handler.read().decode('utf-8')
+
 
 class Dataset(Base):
     __tablename__ = 'datasets'
