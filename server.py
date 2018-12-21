@@ -138,10 +138,12 @@ def send_annotation_request(chat_id):
     session = Session()
     classes = session.query(Class).filter(Class.dataset==dataset).all()
     classes = expand_regex_classes(classes, data_point_value)
-    keyboard = InlineKeyboardMarkup(inline_keyboard=[
-        [InlineKeyboardButton(text=cls.name, callback_data=f"{dataset}:{data_point_index}:{cls.id}") for cls in classes],
-        [InlineKeyboardButton(text=config["skip_text"], callback_data=config["skip_text"])],
-    ])
+    classes_keys = [InlineKeyboardButton(text=cls.name, callback_data=f"{dataset}:{data_point_index}:{cls.id}") for cls in classes]
+    control_keys = [InlineKeyboardButton(text=config["skip_text"], callback_data=config["skip_text"])]
+    if len(classes)<4:  # horizontally
+        keyboard = InlineKeyboardMarkup(inline_keyboard=[classes_keys, control_keys])
+    else:  # vertically
+        keyboard = InlineKeyboardMarkup(inline_keyboard=[[k] for k in (classes_keys + control_keys)])
     # Cache the last example id that was sent to this use
     chat2last_example[chat_id] = data_point_index
     if data_point_value.startswith("http://") or data_point_value.startswith("https://"):
