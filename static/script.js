@@ -36,7 +36,7 @@ $(function(){
  });
 });
 
-$("#txt_botname").on("change", function () {document.getElementById("spn_botname").textContent=document.getElementById("txt_botname").value;})
+$("#txt_botname").on("input", function () {document.getElementById("spn_botname").textContent=document.getElementById("txt_botname").value;})
 
 function validate() {
     var valid = true;
@@ -57,12 +57,12 @@ function validate() {
     }
     valid = document.getElementById("txt_botname").value.length<2;
     if (!valid) {
-        alert("Bot name too short");
+        alert("Bot name cannot be left empty");
         return false;
     }
     valid = document.getElementById("txt_botname").value.length>50;
     if (!valid) {
-        alert("Bot name too long");
+        alert("Bot name too long (max 50 chars)");
         return false;
     }
     valid = document.getElementById("txt_botname").value.replace(/^\w+$/, '').length==0;
