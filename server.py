@@ -23,6 +23,7 @@ else:  # production
 db = create_engine(db_string)
 
 chat2dataset = {}
+chat2last_example = {}
 
 Base = declarative_base()
 Session = sessionmaker(bind=db)
@@ -83,8 +84,6 @@ Base.metadata.create_all(db)
 
 app = Flask("annotbot")
 
-# res = db.execute("select * from annotations;")
-
 
 def test_data():
     session = Session()
@@ -123,6 +122,8 @@ def send_annotation_request(chat_id):
     keyboard = InlineKeyboardMarkup(inline_keyboard=[
         [InlineKeyboardButton(text=cls.name, callback_data=f"{dataset}:{data_point_index}:{cls.id}") for cls in classes],
     ])
+    # Cache the last example id that was sent to this use
+    chat2last_example[chat_id] = data_point_index
     if data_point_value.startswith("http://") or data_point_value.startswith("https://"):
         bot.sendPhoto(chat_id, data_point_value, reply_markup=keyboard)
     else:
@@ -159,7 +160,9 @@ def on_callback_query(msg):
         session.add(new_annotation)
         session.commit()
     bot.answerCallbackQuery(query_id, text=f"Got {cls}")
-    send_annotation_request(chat_id)
+    last_example = chat2last_example.get(chat_id, -1)
+    if example==last_example:
+        send_annotation_request(chat_id)
 
 
 # ------------- Server --------------------#
