@@ -44,7 +44,7 @@ function validate() {
     var bot_desc     = "" + document.getElementById("txt_desc").value;
     var example_data = "" + document.getElementById("txt_data").value;
     var classes      = "" + document.getElementById("txt_classes").value;
-    valid = classes.split('\n').map(function (x) {return (x.length<10);}).reduce(function (x,y) {return x && y;},true);
+    valid = classes.split('\n').map(function (x) {return ((x.length>0) && (x[0]=='/'))||(x.length<10);}).reduce(function (x,y) {return x && y;},true);
     if (!valid) {
         alert("Class name cannot be longer than 10 characters");
         return false;
