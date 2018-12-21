@@ -140,7 +140,7 @@ def send_annotation_request(chat_id):
     classes = expand_regex_classes(classes, data_point_value)
     keyboard = InlineKeyboardMarkup(inline_keyboard=[
         [InlineKeyboardButton(text=cls.name, callback_data=f"{dataset}:{data_point_index}:{cls.id}") for cls in classes],
-        [InlineKeyboardButton(text=config["skip_text"], callback_data="")],
+        [InlineKeyboardButton(text=config["skip_text"], callback_data=config["skip_text"])],
     ])
     # Cache the last example id that was sent to this use
     chat2last_example[chat_id] = data_point_index
@@ -171,7 +171,7 @@ def telegram_chat_message(msg):
 def telegram_callback_query(msg):
     query_id, chat_id, query_data = telepot.glance(msg, flavor='callback_query')
     print('Callback Query:', query_id, chat_id, query_data)
-    if query_data=="": #Skip
+    if query_data==config["skip_text"]: #Skip
         send_annotation_request(chat_id)
         return
     dataset, example, cls = tuple(map(int, query_data.split(":", 2)))
