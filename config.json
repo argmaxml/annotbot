@@ -1,6 +1,6 @@
 {
   "prod_connection_string": "...",
-  "debug_connection_string": "...",
+  "debug_connection_string": "sqlite:///test.db",
   "prod_token": "...",
   "debug_token": "...",
   "debug_chat_id": "...",
