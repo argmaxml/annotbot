@@ -322,11 +322,12 @@ def parse_inputs(form: dict):
         data = json.loads(form.get("txt_data", ""))
         assert type(data) == dict
     except (AssertionError, json.JSONDecodeError):
-        data = []
+        data = {}
         for datum in form.get("txt_data", "").split('\n'):
-            if datum.find(',')>0:
-                data.append(datum.split(',', 1))
-        data = dict(data)
+            if datum.find(',')<0:
+                continue
+            key, val = datum.split(',', 1)
+            data[key] = val.replace("\\n", "\n")
     assert 2 < len(bot_name) <= 50
     assert 5 < len(bot_desc)
     assert any(data) and any(classes)
