@@ -307,7 +307,7 @@ def parse_inputs(form: dict):
         if cls.startswith('/') and cls.endswith('/'):
             try:
                 rgx = re.compile(cls[1:-1])
-                assert rgx.groups == 0
+                assert rgx.groups < 2
             except re.error:
                 print (f"invalid regex {cls}")
                 continue
