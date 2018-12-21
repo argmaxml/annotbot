@@ -107,3 +107,4 @@ venv.bak/
 *.json
 *.db
 fsversion/
+config_git_ignore.json

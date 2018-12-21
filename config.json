@@ -1,9 +1,10 @@
 {
-  "connection_string": "...",
+  "prod_connection_string": "...",
   "debug_connection_string": "...",
+  "prod_token": "...",
+  "debug_token": "...",
+  "debug_chat_id": "...",
   "done_message": "Thank you, we're all done",
   "dataset_not_found_message": "Please state the name of the dataset, these are the available datasets: ",
-  "token": "...",
-  "token_debug": "...",
   "bot_url": "https://t.me/Annotbot"
 }

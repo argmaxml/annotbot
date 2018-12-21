@@ -13,13 +13,14 @@ from telepot.namedtuple import InlineKeyboardMarkup, InlineKeyboardButton
 import pandas as pd
 
 debug_mode = os.name == 'nt'
-with open("config.json", "r") as f:
+config_file = "config_git_ignore.json" if os.path.exists("config_git_ignore.json") else "config.json"
+with open(config_file, "r") as f:
     config = json.load(f)
 
 if debug_mode:
     db_string = config["debug_connection_string"]
 else:  # production
-    db_string = config["connection_string"]
+    db_string = config["prod_connection_string"]
 db = create_engine(db_string)
 
 chat2dataset = {}
@@ -31,8 +32,8 @@ Session = sessionmaker(bind=db)
 
 def notify_dev(text):
     """Send a telegram message"""
-    url = ("https://api.telegram.org/bot"+config["token_debug"]+"/sendMessage?" +
-                     urlencode({"text": text, "chat_id": 234897317}))
+    url = ("https://api.telegram.org/bot"+config["debug_token"]+"/sendMessage?" +
+                     urlencode({"text": text, "chat_id": config["debug_chat_id"]}))
     handler = urlopen(url)
     return handler.read().decode('utf-8')
 
@@ -297,9 +298,9 @@ def submit_dataset():
 
 if __name__ == "__main__":
     if debug_mode:
-        bot = telepot.Bot(config["token_debug"])
+        bot = telepot.Bot(config["debug_token"])
     else:
-        bot = telepot.Bot(config["token"])
+        bot = telepot.Bot(config["prod_token"])
     MessageLoop(bot, {'chat': on_chat_message,
                   'callback_query': on_callback_query}
             ).run_as_thread()
