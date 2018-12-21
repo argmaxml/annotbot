@@ -40,39 +40,40 @@ $("#txt_botname").on("input", function () {document.getElementById("spn_botname"
 
 function validate() {
     var valid = true;
-    valid = document.getElementById("txt_classes").value.split('\n').map(function (x) {return (x.length<10);}).reduce(function (x,y) {return x && y;},true);
+    var bot_name     = "" + document.getElementById("txt_botname").value;
+    var bot_desc     = "" + document.getElementById("txt_desc").value;
+    var example_data = "" + document.getElementById("txt_data").value;
+    var classes      = "" + document.getElementById("txt_classes").value;
+    valid = classes.split('\n').map(function (x) {return (x.length<10);}).reduce(function (x,y) {return x && y;},true);
     if (!valid) {
         alert("Class name cannot be longer than 10 characters");
         return false;
     }
-    valid = document.getElementById("txt_data").value.split('\n').map(function (x) {return (x=='')||(x.indexOf(',')>0);}).reduce(function (x,y) {return x && y;},true);
+    valid = example_data.split('\n').map(function (x) {return (x=='')||(x.indexOf(',')>0);}).reduce(function (x,y) {return x && y;},true);
     if (!valid) {
         alert("Not all Data lines contain a comma");
         return false;
     }
-    valid = document.getElementById("txt_desc").value.length<5;
-    if (!valid) {
+    if (bot_desc.length<5) {
         alert("Dataset description too short");
         return false;
     }
-    valid = document.getElementById("txt_botname").value.length<2;
-    if (!valid) {
+    if (bot_name.length<2) {
         alert("Bot name cannot be left empty");
         return false;
     }
-    valid = document.getElementById("txt_botname").value.length>50;
-    if (!valid) {
+    if (bot_name.length>50) {
         alert("Bot name too long (max 50 chars)");
         return false;
     }
-    valid = document.getElementById("txt_botname").value.replace(/^\w+$/, '').length==0;
+    valid = bot_name.replace(/^\w+$/, '').length===0;
     if (!valid) {
         alert("Bot name Can only contain letters, numbers and an underscore");
         return false;
     }
     valid=$.ajax({
         type: "GET",
-        url: "/bot_exists/"+encodeURI(document.getElementById("txt_botname").value),
+        url: "/bot_exists/"+encodeURI(bot_name),
         cache: false,
         async: false
     }).responseText!="1";
