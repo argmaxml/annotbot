@@ -223,8 +223,7 @@ def annotated(dataset_name):
             GROUP BY 1,2
             """)
     csv = pd.DataFrame(list(data), columns=["example", "cls", "cnt"])\
-        .pivot_table(values="cnt", aggfunc=sum, index="example", columns="cls")\
-        .fillna(0)\
+        .pivot_table(values="cnt", aggfunc=sum, index="example", columns="cls", fill_value=0)\
         .to_csv()
     return Response(
         csv,
@@ -270,26 +269,40 @@ def view_datasets():
                            datasets=session.query(Dataset).all())
 
 
-@app.route('/submit_dataset', methods=['GET', 'POST'])
-def submit_dataset():
-    form = request.form
-    session = Session()
-    session.add(Dataset(name=form.get("txt_botname").lower(), description=form.get("txt_desc")))
-    session.commit()
-    dataset_id = session.query(Dataset).filter(Dataset.name==form.get("txt_botname").lower()).first().id
-    for cls in form.get("txt_classes").split('\n'):
-        if any(cls.strip()):
-            session.add(Class(dataset=dataset_id, name=cls.strip()))
+def parse_inputs(form: dict):
+    bot_name = form.get("txt_botname").lower().strip()
+    bot_desc = form.get("txt_desc").strip()
     try:
-        classes = json.loads(form.get("txt_data"))
-        session.add_all([Example(dataset=dataset_id, name=key, value=val) for key,val in classes.items()])
-    except:
+        classes = json.loads(form.get("txt_classes"))
+        assert type(classes) == list
+    except (AssertionError, json.JSONDecodeError):
+        classes = [c.strip() for c in form.get("txt_classes")]
+    try:
+        data = json.loads(form.get("txt_data"))
+        assert type(data) == dict
+    except (AssertionError, json.JSONDecodeError):
+        data = []
         for datum in form.get("txt_data").split('\n'):
             if datum.find(',')>0:
-                key, val = datum.strip().split(',', 1)
-                session.add(Example(dataset=dataset_id, name=key, value=val))
+                data.append(datum.split(',', 1))
+        data = dict(data)
+    assert 2 < len(bot_name) <= 50
+    assert 5 < len(bot_desc)
+    assert any(data) and any(classes)
+    return (bot_name, bot_desc, classes, data)
+
+
+@app.route('/submit_dataset', methods=['GET', 'POST'])
+def submit_dataset():
+    bot_name, bot_desc, classes, data = parse_inputs(request.form)
+    session = Session()
+    session.add(Dataset(name=bot_name, description=bot_desc))
     session.commit()
-    notify_dev("New bot created: " + form.get("txt_botname").lower())
+    dataset_id = session.query(Dataset).filter(Dataset.name==bot_name).first().id
+    session.add_all([Class(dataset=dataset_id, name=cls) for cls in classes])
+    session.add_all([Example(dataset=dataset_id, name=key, value=val) for key, val in data.items()])
+    session.commit()
+    notify_dev("New bot created: " + bot_name)
     return render_template("view_annotations.html",
                            pages=["Home","New Bot","View Annotations"],
                            active_page="View Annotations",
