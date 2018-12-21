@@ -140,7 +140,7 @@ def send_annotation_request(chat_id):
     classes = expand_regex_classes(classes, data_point_value)
     classes_keys = [InlineKeyboardButton(text=cls.name, callback_data=f"{dataset}:{data_point_index}:{cls.id}") for cls in classes]
     control_keys = [InlineKeyboardButton(text=config["skip_text"], callback_data=config["skip_text"])]
-    if len(classes)<4:  # horizontally
+    if 0<len(classes)<4:  # horizontally
         keyboard = InlineKeyboardMarkup(inline_keyboard=[classes_keys, control_keys])
     else:  # vertically
         keyboard = InlineKeyboardMarkup(inline_keyboard=[[k] for k in (classes_keys + control_keys)])
