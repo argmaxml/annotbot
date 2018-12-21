@@ -270,19 +270,19 @@ def view_datasets():
 
 
 def parse_inputs(form: dict):
-    bot_name = form.get("txt_botname").lower().strip()
-    bot_desc = form.get("txt_desc").strip()
+    bot_name = form.get("txt_botname", "").lower().strip()
+    bot_desc = form.get("txt_desc", "").strip()
     try:
-        classes = json.loads(form.get("txt_classes"))
+        classes = json.loads(form.get("txt_classes", ""))
         assert type(classes) == list
     except (AssertionError, json.JSONDecodeError):
         classes = [c.strip() for c in form.get("txt_classes", "").split('\n') if any(c.strip())]
     try:
-        data = json.loads(form.get("txt_data"))
+        data = json.loads(form.get("txt_data", ""))
         assert type(data) == dict
     except (AssertionError, json.JSONDecodeError):
         data = []
-        for datum in form.get("txt_data").split('\n'):
+        for datum in form.get("txt_data", "").split('\n'):
             if datum.find(',')>0:
                 data.append(datum.split(',', 1))
         data = dict(data)
