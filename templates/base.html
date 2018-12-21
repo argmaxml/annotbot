@@ -14,7 +14,7 @@
 <ul class="nav nav-tabs nav-justified">
   {% for page in pages %}
     {% if active_page==page%}
-    <li role="presentation" class="active"><a href="/{{page.lower().replace(' ', '_')}})">{{page.title()}}</a></li>
+    <li role="presentation" class="active"><a href="/{{page.lower().replace(' ', '_')}}">{{page.title()}}</a></li>
     {% else %}
     <li role="presentation"><a href="/{{page.lower().replace(' ', '_')}}">{{page.title()}}</a></li>
     {% endif%}
