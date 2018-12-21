@@ -131,7 +131,7 @@ def send_annotation_request(chat_id):
         bot.sendMessage(chat_id, data_point_value, reply_markup=keyboard)
 
 
-def on_chat_message(msg):
+def telegram_chat_message(msg):
     content_type, chat_type, chat_id = telepot.glance(msg)
     print(content_type, chat_type, chat_id)
     if content_type == 'text':
@@ -149,7 +149,7 @@ def on_chat_message(msg):
             send_annotation_request(chat_id)
 
 
-def on_callback_query(msg):
+def telegram_callback_query(msg):
     query_id, chat_id, query_data = telepot.glance(msg, flavor='callback_query')
     print('Callback Query:', query_id, chat_id, query_data)
     dataset, example, cls = tuple(map(int, query_data.split(":", 2)))
@@ -314,7 +314,8 @@ if __name__ == "__main__":
         bot = telepot.Bot(config["debug_token"])
     else:
         bot = telepot.Bot(config["prod_token"])
-    MessageLoop(bot, {'chat': on_chat_message,
-                  'callback_query': on_callback_query}
-            ).run_as_thread()
+    MessageLoop(bot, {
+        'chat': telegram_chat_message,
+        'callback_query': telegram_callback_query
+    }).run_as_thread()
     app.run(port=80, host='0.0.0.0')
