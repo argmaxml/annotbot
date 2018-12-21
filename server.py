@@ -276,7 +276,7 @@ def parse_inputs(form: dict):
         classes = json.loads(form.get("txt_classes"))
         assert type(classes) == list
     except (AssertionError, json.JSONDecodeError):
-        classes = [c.strip() for c in form.get("txt_classes")]
+        classes = [c.strip() for c in form.get("txt_classes", "").split('\n') if any(c.strip())]
     try:
         data = json.loads(form.get("txt_data"))
         assert type(data) == dict
