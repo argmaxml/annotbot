@@ -4,6 +4,8 @@
   "prod_token": "...",
   "debug_token": "...",
   "debug_chat_id": "...",
+  "regex_class_limit": 10,
+  "skip_text": "Skip",
   "done_message": "Thank you, we're all done",
   "dataset_not_found_message": "Please state the name of the dataset, these are the available datasets: ",
   "bot_url": "https://t.me/Annotbot"

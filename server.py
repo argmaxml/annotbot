@@ -1,5 +1,6 @@
 import os
 import json
+import re
 from urllib.request import urlopen
 from urllib.parse import urlencode
 from sqlalchemy import create_engine
@@ -100,6 +101,22 @@ def test_data():
 
 # --------------- BOT ---------------------- #
 
+def expand_regex_classes(classes, txt):
+    new_classes = []
+    for cls in classes:
+        if not cls.name.startswith('/'):
+            new_classes.append(cls)
+            continue
+        pattern, match_index = cls.name[1:].rsplit('/', 1)
+        match_index = int(match_index)
+        rgx = re.compile(pattern)
+        matches = rgx.findall(txt)
+        if match_index<len(matches):
+            cls.name = matches[match_index]
+            new_classes.append(cls)
+    return new_classes
+
+
 def send_annotation_request(chat_id):
     dataset = chat2dataset.get(chat_id)
     if type(dataset)!=int:
@@ -120,8 +137,10 @@ def send_annotation_request(chat_id):
     data_point_index, data_point_value = data_point
     session = Session()
     classes = session.query(Class).filter(Class.dataset==dataset).all()
+    classes = expand_regex_classes(classes, data_point_value)
     keyboard = InlineKeyboardMarkup(inline_keyboard=[
         [InlineKeyboardButton(text=cls.name, callback_data=f"{dataset}:{data_point_index}:{cls.id}") for cls in classes],
+        [InlineKeyboardButton(text=config["skip_text"], callback_data="")],
     ])
     # Cache the last example id that was sent to this use
     chat2last_example[chat_id] = data_point_index
@@ -152,6 +171,9 @@ def telegram_chat_message(msg):
 def telegram_callback_query(msg):
     query_id, chat_id, query_data = telepot.glance(msg, flavor='callback_query')
     print('Callback Query:', query_id, chat_id, query_data)
+    if query_data=="": #Skip
+        send_annotation_request(chat_id)
+        return
     dataset, example, cls = tuple(map(int, query_data.split(":", 2)))
     new_annotation = Annotation(dataset=dataset, chat_id=chat_id, example=example, class_id=cls)
     if debug_mode:
@@ -256,8 +278,8 @@ def home():
 def new_dataset():
     return render_template("new_bot.html",
                            pages=["Home","New Bot","View Annotations"],
-
-                           active_page="New Bot")
+                           active_page="New Bot",
+                           bot_url=config["bot_url"])
 
 
 @app.route('/view_annotations')
@@ -277,6 +299,23 @@ def parse_inputs(form: dict):
         assert type(classes) == list
     except (AssertionError, json.JSONDecodeError):
         classes = [c.strip() for c in form.get("txt_classes", "").split('\n') if any(c.strip())]
+    # Regex classes
+    for i in range(len(classes)-1,-1,-1):
+        cls = classes[i]
+        if cls.startswith('/') and cls.endswith('/'):
+            try:
+                rgx = re.compile(cls[1:-1])
+                assert rgx.groups == 0
+            except re.error:
+                print (f"invalid regex {cls}")
+                continue
+            except AssertionError:
+                print("Regex Groups are not supported")
+                continue
+            del classes[i]
+            for j in range(config["regex_class_limit"]):
+                classes.append("/{p}/{n}".format(n=j,p=rgx.pattern))
+
     try:
         data = json.loads(form.get("txt_data", ""))
         assert type(data) == dict
