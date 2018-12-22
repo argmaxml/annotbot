@@ -321,7 +321,7 @@ def parse_inputs(form: dict):
             if datum.find(',')<0:
                 continue
             key, val = datum.split(',', 1)
-            data[key] = val.replace("\\n", "\n")
+            data[key] = val.replace("\\n", "|")
     assert 2 < len(bot_name) <= 50
     assert 5 < len(bot_desc)
     assert any(data) and any(classes)
