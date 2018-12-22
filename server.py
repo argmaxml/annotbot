@@ -87,19 +87,13 @@ Base.metadata.create_all(db)
 app = Flask("annotbot")
 
 
-def test_data():
-    session = Session()
-    session.add(Dataset(name="test", description="testing"))
-    session.add(Class(dataset=1, name="positive"))
-    session.add(Class(dataset=1, name="neutral"))
-    session.add(Class(dataset=1, name="negative"))
-    session.add(Example(dataset=1, name="ex1", value="Pump P 17.1 is used to circulate the content of vessel B 17.1 and additionally feed the column K 21. "))
-    session.add(Example(dataset=1, name="ex2", value="(1) No Product flow (2) Coked pressure pipe Why (3) High temperature at the trace heating over a long time Why (4) To keep the product liquid Why (5) To keep it pumpable "))
-    session.add(Annotation(dataset=1, chat_id=666, example=2, class_id=3))
-    session.commit()
-
-
 # --------------- BOT ---------------------- #
+
+def chunks(lst, n):
+    """Yield successive n-sized chunks from lst"""
+    for i in range(0, len(lst), n):
+        yield lst[i:i + n]
+
 
 def expand_regex_classes(classes, txt):
     new_classes = []
@@ -143,7 +137,7 @@ def send_annotation_request(chat_id):
     if 0<len(classes)<4:  # horizontally
         keyboard = InlineKeyboardMarkup(inline_keyboard=[classes_keys, control_keys])
     else:  # vertically
-        keyboard = InlineKeyboardMarkup(inline_keyboard=[[k] for k in (classes_keys + control_keys)])
+        keyboard = InlineKeyboardMarkup(inline_keyboard=list(chunks(classes_keys, 2)) + [control_keys])
     # Cache the last example id that was sent to this use
     chat2last_example[chat_id] = data_point_index
     if data_point_value.startswith("http://") or data_point_value.startswith("https://"):
