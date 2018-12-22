@@ -7,7 +7,7 @@ from sqlalchemy import create_engine
 from sqlalchemy import Integer, String, Column
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
-from flask import Flask, send_from_directory, redirect, render_template, Response, request
+from flask import Flask, send_from_directory, send_file, redirect, render_template, Response, request
 import telepot
 from telepot.loop import MessageLoop
 from telepot.namedtuple import InlineKeyboardMarkup, InlineKeyboardButton
@@ -96,6 +96,7 @@ def chunks(lst, n):
 
 
 def expand_regex_classes(classes, txt):
+    """Replaces regex class names, with their corresponding matches"""
     new_classes = []
     for cls in classes:
         if not cls.name.startswith('/'):
@@ -112,6 +113,7 @@ def expand_regex_classes(classes, txt):
 
 
 def send_annotation_request(chat_id):
+    """Queries a datapoint, and sends annotation request via telegram"""
     dataset = chat2dataset.get(chat_id)
     if type(dataset)!=int:
         raise SystemError(f"No dataset for chat_id={chat_id}")
@@ -147,6 +149,7 @@ def send_annotation_request(chat_id):
 
 
 def telegram_chat_message(msg):
+    """Callback for an incoming textual message"""
     content_type, chat_type, chat_id = telepot.glance(msg)
     print(content_type, chat_type, chat_id)
     if content_type == 'text':
@@ -165,6 +168,7 @@ def telegram_chat_message(msg):
 
 
 def telegram_callback_query(msg):
+    """Callback for button click"""
     query_id, chat_id, query_data = telepot.glance(msg, flavor='callback_query')
     print('Callback Query:', query_id, chat_id, query_data)
     if query_data==config["skip_text"]: #Skip
@@ -195,6 +199,7 @@ def get_annotations():
 
 @app.route('/data/<dataset_name>')
 def get_data_file(dataset_name):
+    """Queries the DB and returns the dataset as csv"""
     session = Session()
     dataset = session.query(Dataset).filter(Dataset.name==dataset_name).first()
     if dataset is None:
@@ -212,6 +217,7 @@ def get_data_file(dataset_name):
 
 @app.route('/classes/<dataset_name>')
 def get_classes_file(dataset_name):
+    """Queries the DB and returns the classes as csv"""
     session = Session()
     dataset = session.query(Dataset).filter(Dataset.name==dataset_name).first()
     if dataset is None:
@@ -228,6 +234,7 @@ def get_classes_file(dataset_name):
 
 @app.route('/annotated/<dataset_name>')
 def annotated(dataset_name):
+    """Queries the DB and returns the annotated dataset as csv"""
     session = Session()
     dataset = session.query(Dataset).filter(Dataset.name==dataset_name).first()
     if dataset is None:
@@ -252,9 +259,15 @@ def annotated(dataset_name):
 
 @app.route('/bot_exists/<dataset_name>')
 def bot_exists(dataset_name):
+    """Endpoint to check if a bot name exists"""
     session = Session()
     dataset = session.query(Dataset).filter(Dataset.name==dataset_name).first()
     return "0" if dataset is None else "1"
+
+
+@app.route('/favicon.ico')
+def serve_favicon():
+    return send_file('static/favicon.ico')
 
 
 @app.route('/static/<path:path>')
@@ -288,6 +301,7 @@ def view_datasets():
 
 
 def parse_inputs(form: dict):
+    """Transforms form data to python objects"""
     bot_name = form.get("txt_botname", "").lower().strip()
     bot_desc = form.get("txt_desc", "").strip()
     try:
@@ -330,6 +344,7 @@ def parse_inputs(form: dict):
 
 @app.route('/submit_dataset', methods=['GET', 'POST'])
 def submit_dataset():
+    """Creates a new dataset for the bot"""
     bot_name, bot_desc, classes, data = parse_inputs(request.form)
     session = Session()
     session.add(Dataset(name=bot_name, description=bot_desc))
