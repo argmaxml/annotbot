@@ -196,14 +196,16 @@ def notify_dev(text):
 # ------------- Server --------------------#
 
 
-@app.route('/remind')
-def remind():
+@app.route('/remind/<dataset_name>')
+def remind(dataset_name):
     ret = []
     session = Session()
-    dataset2name = {d.id:d.name for d in session.query(Dataset).all()}
+    dataset = session.query(Dataset).filter(Dataset.name == dataset_name).first()
+    if dataset is None:
+        return "Not found"
     token = config["debug_token"] if debug_mode else config["prod_token"]
-    for chat_id, dataset_id in chat2dataset.items():
-        dataset_name = dataset2name[dataset_id]
+    chats = [chat_id for chat_id, dataset_id in chat2dataset.items() if dataset_id == dataset.id]
+    for chat_id in chats:
         text = f"I still have many questions about {dataset_name}, could you please help ?"
         telegram_outbound_text(token, chat_id, text)
         ret.append(f"Reminded {chat_id} about {dataset_name}")
