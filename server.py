@@ -209,7 +209,7 @@ def remind(dataset_name):
         text = f"I still have many questions about {dataset_name}, could you please help ?"
         telegram_outbound_text(token, chat_id, text)
         ret.append(f"Reminded {chat_id} about {dataset_name}")
-    if any(chats)
+    if any(chats):
         notify_dev("\n".join(ret))
     return '<br />'.join(ret)
 
