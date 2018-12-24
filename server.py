@@ -31,14 +31,6 @@ Base = declarative_base()
 Session = sessionmaker(bind=db)
 
 
-def notify_dev(text):
-    """Send a telegram message"""
-    url = ("https://api.telegram.org/bot"+config["debug_token"]+"/sendMessage?" +
-                     urlencode({"text": text, "chat_id": config["debug_chat_id"]}))
-    handler = urlopen(url)
-    return handler.read().decode('utf-8')
-
-
 class Dataset(Base):
     __tablename__ = 'datasets'
     id = Column(Integer, primary_key=True, autoincrement=True)
@@ -188,13 +180,32 @@ def telegram_callback_query(msg):
         send_annotation_request(chat_id)
 
 
+def telegram_outbound_text(token, chat_id, text):
+    """Send a telegram message"""
+    url = ("https://api.telegram.org/bot"+token+"/sendMessage?" + urlencode({"text": text, "chat_id": chat_id}))
+    handler = urlopen(url)
+    return handler.read().decode('utf-8')
+
+
+def notify_dev(text):
+    """Send a telegram message to dev"""
+    return telegram_outbound_text(config["debug_token"], config["debug_chat_id"], text)
+
 # ------------- Server --------------------#
 
 
-@app.route('/ann')
-def get_annotations():
+@app.route('/remind')
+def remind():
+    ret = []
     session = Session()
-    return str(list(session.query(Annotation).all()))
+    dataset2name = {d.id:d.name for d in session.query(Dataset).all()}
+    token = config["debug_token"] if debug_mode else config["prod_token"]
+    for chat_id, dataset_id in chat2dataset.items():
+        dataset_name = dataset2name[dataset_id]
+        text = f"I still have many questions about {dataset_name}, could you please help ?"
+        telegram_outbound_text(token, chat_id, text)
+        ret.append(f"Reminded {chat_id} about {dataset_name}")
+    return '<br />'.join(ret)
 
 
 @app.route('/data/<dataset_name>')
