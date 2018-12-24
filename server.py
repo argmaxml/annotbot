@@ -154,8 +154,10 @@ def telegram_chat_message(msg):
         if dataset is None:
             available_datasets = "\n" + ",".join([d.name for d in session.query(Dataset).all()])
             bot.sendMessage(chat_id, config["dataset_not_found_message"]+available_datasets)
+            notify_dev(f"{chat_id} was asked to select a dataset")
         else:
             chat2dataset[chat_id] = dataset.id
+            notify_dev(f"{chat_id} selected "+msg['text'].strip().lower())
             send_annotation_request(chat_id)
 
 
@@ -205,6 +207,7 @@ def remind():
         text = f"I still have many questions about {dataset_name}, could you please help ?"
         telegram_outbound_text(token, chat_id, text)
         ret.append(f"Reminded {chat_id} about {dataset_name}")
+    notify_dev("\n".join(ret))
     return '<br />'.join(ret)
 
 
