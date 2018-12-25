@@ -2,9 +2,9 @@ from distutils.core import setup
 
 setup(
     name='Annotbot',
-    py_modules="client.py",
+    py_modules=["client.py"],
     requires=["pandas"],
-    version='0.1',
+    version='0.11',
     python_requires='>=3.4',
     description='Annotbot.com client',
     author='Uri Goren',
