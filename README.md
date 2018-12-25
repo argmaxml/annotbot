@@ -10,6 +10,12 @@ Available on annotbot.com
 1. Share it with as many people as possible
 1. When done, goto http://www.annotbot.com/view_annotations and download the annotations
 
+## Want to use from python ?
+1. **Install**:  `pip install git+https://github.com/urigoren/Annotbot`
+1. **Import**: `from annotbot_client import submit_dataset, annotated`
+1. **Submit**: `submit_dataset("test", "test dataset", ["a", "b", "c"], {1: "test 1", 2: "test 2"})`
+1. **Download** : `annotated('test')`
+
 ## Bot Screenshot
 ![alt text](https://github.com/urigoren/annotbot/blob/master/static/screenshot.png "Screenshot")
 

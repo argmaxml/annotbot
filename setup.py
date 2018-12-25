@@ -2,7 +2,7 @@ from distutils.core import setup
 
 setup(
     name='Annotbot',
-    py_modules=["client"],
+    py_modules=["annotbot_client"],
     requires=["pandas"],
     version='0.12',
     python_requires='>=3.4',
