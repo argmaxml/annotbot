@@ -364,6 +364,7 @@ def submit_dataset():
     """Creates a new dataset for the bot"""
     bot_name, bot_desc, classes, data = parse_inputs(request.form)
     session = Session()
+    assert session.query(Dataset).filter(Dataset.name == bot_name).first() is None
     session.add(Dataset(name=bot_name, description=bot_desc))
     session.commit()
     dataset_id = session.query(Dataset).filter(Dataset.name==bot_name).first().id
