@@ -31,14 +31,6 @@ Base = declarative_base()
 Session = sessionmaker(bind=db)
 
 
-def notify_dev(text):
-    """Send a telegram message"""
-    url = ("https://api.telegram.org/bot"+config["debug_token"]+"/sendMessage?" +
-                     urlencode({"text": text, "chat_id": config["debug_chat_id"]}))
-    handler = urlopen(url)
-    return handler.read().decode('utf-8')
-
-
 class Dataset(Base):
     __tablename__ = 'datasets'
     id = Column(Integer, primary_key=True, autoincrement=True)
@@ -162,8 +154,10 @@ def telegram_chat_message(msg):
         if dataset is None:
             available_datasets = "\n" + ",".join([d.name for d in session.query(Dataset).all()])
             bot.sendMessage(chat_id, config["dataset_not_found_message"]+available_datasets)
+            notify_dev(f"{chat_id} was asked to select a dataset")
         else:
             chat2dataset[chat_id] = dataset.id
+            notify_dev(f"{chat_id} selected "+msg['text'].strip().lower())
             send_annotation_request(chat_id)
 
 
@@ -188,13 +182,36 @@ def telegram_callback_query(msg):
         send_annotation_request(chat_id)
 
 
+def telegram_outbound_text(token, chat_id, text):
+    """Send a telegram message"""
+    url = ("https://api.telegram.org/bot"+token+"/sendMessage?" + urlencode({"text": text, "chat_id": chat_id}))
+    handler = urlopen(url)
+    return handler.read().decode('utf-8')
+
+
+def notify_dev(text):
+    """Send a telegram message to dev"""
+    return telegram_outbound_text(config["debug_token"], config["debug_chat_id"], text)
+
 # ------------- Server --------------------#
 
 
-@app.route('/ann')
-def get_annotations():
+@app.route('/remind/<dataset_name>')
+def remind(dataset_name):
+    ret = []
     session = Session()
-    return str(list(session.query(Annotation).all()))
+    dataset = session.query(Dataset).filter(Dataset.name == dataset_name).first()
+    if dataset is None:
+        return "Not found"
+    token = config["debug_token"] if debug_mode else config["prod_token"]
+    chats = [chat_id for chat_id, dataset_id in chat2dataset.items() if dataset_id == dataset.id]
+    for chat_id in chats:
+        text = f"I still have many questions about {dataset_name}, could you please help ?"
+        telegram_outbound_text(token, chat_id, text)
+        ret.append(f"Reminded {chat_id} about {dataset_name}")
+    if any(chats):
+        notify_dev("\n".join(ret))
+    return '<br />'.join(ret)
 
 
 @app.route('/data/<dataset_name>')
@@ -347,6 +364,7 @@ def submit_dataset():
     """Creates a new dataset for the bot"""
     bot_name, bot_desc, classes, data = parse_inputs(request.form)
     session = Session()
+    assert session.query(Dataset).filter(Dataset.name == bot_name).first() is None
     session.add(Dataset(name=bot_name, description=bot_desc))
     session.commit()
     dataset_id = session.query(Dataset).filter(Dataset.name==bot_name).first().id
