@@ -38,6 +38,9 @@ $(function(){
 
 $("#txt_botname").on("input", function () {document.getElementById("spn_botname").textContent=document.getElementById("txt_botname").value;})
 
+function is_json(x) {
+    try {JSON.parse(x); return true;} catch (e) {return false;}
+}
 function validate() {
     var valid = true;
     var bot_name     = "" + document.getElementById("txt_botname").value;
@@ -50,7 +53,7 @@ function validate() {
         return false;
     }
     valid = example_data.split('\n').map(function (x) {return (x=='')||(x.indexOf(',')>0);}).reduce(function (x,y) {return x && y;},true);
-    if (!valid) {
+    if ((!is_json(example_data))&&(!valid)) {
         alert("Not all Data lines contain a comma");
         return false;
     }
