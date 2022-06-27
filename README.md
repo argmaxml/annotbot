@@ -3,12 +3,12 @@ Image annotation or Text blob annotation with Telegram.
 Available on annotbot.com
 
 ## How to use AnnotBot ?
-1. Goto to http:/54.93.36.200
+1. Goto to http://52.58.98.253/
 1. Follow the instructions and create a bot
 1. Chat with http://t.me/Annotbot on telegram
 1. Tell it yor dataset name, and start tagging
 1. Share it with as many people as possible
-1. When done, goto http://54.93.36.200/view_annotations and download the annotations
+1. When done, goto http://52.58.98.253/view_annotations and download the annotations
 
 ## Usage within python
 1. **Install**:  `pip install -U git+https://github.com/urigoren/Annotbot`
